@@ -37,8 +37,8 @@ form fieldset legend {
 
 form .field {
 	display: flex;
-	justify-content: flex-start;
-	align-items: flex-start;
+	justify-content: center;
+	align-items: center;
 	margin-bottom: 1.2rem;
 }
 

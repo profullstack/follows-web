@@ -14,7 +14,7 @@ section {
 }
 
 main {
-	min-height: calc(100vh - 8.4rem);
+	min-height: calc(100vh - 12.4rem);
 	display: flex;
 	justify-content: flex-start;
 	align-items: center;
@@ -30,19 +30,6 @@ form {
 	margin-top: 6rem;
 }
 
-input,
-button {
-	border: 1px solid black;
-	padding: 1.2rem;
-	outline: none;
-	color: #000;
-	border-radius: .2rem;
-}
-
-button {
-	font-weight: 700;
-	background-color: #fc0
-}
 
 footer {
 	margin: 1.2rem;
