@@ -1,0 +1,7 @@
+build
+node_modules
+package-lock.json
+.env.local
+.env.local.bat
+data/
+history.txt
