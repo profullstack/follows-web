@@ -1,0 +1,66 @@
+*,
+*::after,
+*::before {
+	font-family: SpaceMono, sans-serif;
+}
+
+.bold,
+strong {
+	font-family: SpaceMono-Bold;
+}
+
+section {
+	padding: .8rem;
+}
+
+main {
+	min-height: calc(100vh - 8.4rem);
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	flex-direction: column;
+}
+
+h1 {
+	font-weight: 700;
+	font-size: 2.2rem;
+}
+
+form {
+	margin-top: 6rem;
+}
+
+input,
+button {
+	border: 1px solid black;
+	padding: 1.2rem;
+	outline: none;
+	color: #000;
+	border-radius: .2rem;
+}
+
+button {
+	font-weight: 700;
+	background-color: #fc0
+}
+
+footer {
+	margin: 1.2rem;
+	text-align: center;
+}
+
+#logo {
+	width: 9rem;
+	display: inline-block;
+	border: 1px solid black;
+	border-radius: 50px;
+	margin: 1.2rem;
+}
+
+h1 {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	margin-bottom: 1.2rem;
+}
