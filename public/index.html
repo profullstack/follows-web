@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="/icons/favicon-128x128.png" />
-  <link rel="apple-touch-icon" sizes="128x128" href="/icons/favicon-128x128.png" />
+  <link rel="icon" href="/logo.png" />
+  <link rel="apple-touch-icon" sizes="128x128" href="/logo.png" />
   <link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
-  <link rel="shortcut icon" type="image/png" href="/icons/favicon-196x196.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
-  <link rel="stylesheet" type="text/css" href="/styles/main.css">
+  <link rel="shortcut icon" type="image/png" href="/logo.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
   <meta name="msapplication-TileColor" content="#ffffff" />
   <meta name="theme-color" content="#ffffff" />
 	<title>follows.lol - The Nostr follower tool</title>
@@ -58,6 +57,22 @@
 	footer {
 		margin: 1.2rem;
 		text-align: center;
+	}
+
+	#logo {
+		width: 9rem;
+		display: inline-block;
+		border: 1px solid black;
+		border-radius: 50px;
+		margin: 1.2rem;
+	}
+
+	h1 {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		flex-direction: column;
+		margin-bottom: 1.2rem;
 	}
 	</style>
 <script>
@@ -155,7 +170,7 @@ window.addEventListener('DOMContentLoaded', function() {
 <body>
 <main>
 	<form id="follow" method="post">
-		<h1 style="text-align: center;">The Nostr follower tool</h1>
+		<h1><img id="logo" src="/logo.png" alt="" /> The Nostr follower tool</h1>
 		<div class="field"><input id="npub" style="width: 50vw" type="text" placeholder="npub" /> <button>follow</button></div>
 	</form>
 </main>
