@@ -1,0 +1,14 @@
+{
+  "name": "follows.lol",
+  "version": "1.0",
+  "description": "The Nostr follower tool",
+  "short_name": "follows",
+  "icons": {
+    "16": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  },
+  "start_url": "https://follows.lol/",
+  "background_color": "#f7f7f7",
+  "theme_color": "#333"
+}
