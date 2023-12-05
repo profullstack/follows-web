@@ -84,5 +84,6 @@ async function onSubmit(e) {
 }
 
 window.addEventListener('DOMContentLoaded', function () {
+    console.log('Loaded!');
     document.getElementById('follow').addEventListener('submit', onSubmit);
 });
