@@ -32,25 +32,25 @@ async function getAndFollowUsersFollowers(targetNpub) {
 
 // Function to follow a user
 async function followUser(followerNpub, client) {
-    const { pubkey } = (await window.webln.getInfo()).node;
-    const pubkey2 = await window.nostr.getPublicKey();
-    const event = {
-        pubkey,
-        kind: 4, // Kind 4 for 'meta' events
-        content: {
-            follow: [followerNpub]
-        },
-        tags: [],
-        created_at: Math.floor(new Date().getTime() / 1000),
-    };
+  const { pubkey } = (await window.webln.getInfo()).node;
+  const pubkey2 = await window.nostr.getPublicKey();
+  const event = {
+    pubkey,
+    kind: 4, // Kind 4 for 'meta' events
+    content: {
+      follow: [followerNpub],
+    },
+    tags: [],
+    created_at: Math.floor(new Date().getTime() / 1000),
+  };
 
-          // Sign the event with your private key
-      		async window.nostr.signEvent(event); // takes an event object, adds `id`, `pubkey` and `sig` and returns it
-    // event.id = nostr.getEventId(event, privateKey);
-    //event.sig = nostr.getEventSignature(event, privateKey);
+  // Sign the event with your private key
+  await window.nostr.signEvent(event); // takes an event object, adds `id`, `pubkey` and `sig` and returns it
+  // event.id = nostr.getEventId(event, privateKey);
+  //event.sig = nostr.getEventSignature(event, privateKey);
 
-    // Publish the event
-    await client.publish(event);
+  // Publish the event
+  await client.publish(event);
 }
 
 async function createInvoiceAndPay() {
