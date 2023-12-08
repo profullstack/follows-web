@@ -1,12 +1,12 @@
 // define our tools
 const nt = window.NostrTools;
 
-// button reactivity
 function disableButton() {
     document
         .getElementById('follow-button')
         .setAttribute('disabled', 'true');
 }
+
 function enableButton() {
     document
         .getElementById('follow-button')
@@ -16,21 +16,10 @@ function enableButton() {
 // force firefox to disable button until connected
 disableButton();
 
-// print console.log to div
-function print(msg) {
-    var htmlLog = document.getElementById('html-log');
-    // check what we need to output (object or text) and add it to the html element.
-    if (typeof msg == 'object') {
-        htmlLog.innerHTML += (JSON && JSON.stringify ? JSON.stringify(msg) : msg) + '<br>';
-    } else {
-        htmlLog.innerHTML += msg + '<br>';
-    }
-}
-
 // set connection to cache relay
 window.cacheRelay = nt.relayInit('wss://cache2.primal.net/v1')
 cacheRelay.on('connect', () => {
-    print(`Connected to ${cacheRelay.url}`)
+    console.log(`Connected to ${cacheRelay.url}`)
 })
 cacheRelay.on('error', () => {
     console.log(`Failed to connect to ${cacheRelay.url}`)
@@ -40,7 +29,7 @@ cacheRelay.on('error', () => {
 // set connection to relay
 window.relay = nt.relayInit('wss://relay.primal.net/')
 relay.on('connect', () => {
-    print(`Connected to ${relay.url}`)
+    console.log(`Connected to ${relay.url}`)
 })
 relay.on('error', () => {
     console.log(`Failed to connect to ${relay.url}`)
@@ -48,7 +37,7 @@ relay.on('error', () => {
 })
 
 async function connectRelays() {
-    print('Connecting relays...');
+    console.log('Connecting relays...');
     await Promise.allSettled(
         [
             relay.connect(),
@@ -62,7 +51,7 @@ async function connectRelays() {
 await connectRelays();
 
 function getTargetFollowers(targetUserPubkey, success) {
-    print('Getting target followers...');
+    console.log('Getting target followers...');
     let filter = {
         "cache": [
             "user_followers",
@@ -76,7 +65,7 @@ function getTargetFollowers(targetUserPubkey, success) {
     });
     sub.on('eose', () => {
         sub.unsub()
-        print('Target followers: ' + followers.length);
+        console.log('Target followers:', followers);
         success(followers);
     });
 }
@@ -90,7 +79,7 @@ function getTargetFollowersPromise(targetUserPubkey) {
 }
 
 function getContactListEvent(userPubkey, success) {
-    print('Getting own contact list...');
+    console.log('Getting contact list...');
     let filter = {
         "authors": [userPubkey],
         "kinds": [3],
@@ -105,7 +94,7 @@ function getContactListEvent(userPubkey, success) {
         if (eventValidation !== true) {
             throw new TypeError("We received a fake event!");
         } else {
-            print("Our current contact list:" + event.tags.length);
+            console.log("Our current contact list:", event.tags);
             success(event);
         }
     });
@@ -133,7 +122,6 @@ function mergeLists(list1, list2) {
     return(result);
 }
 
-// main function
 async function onSubmit(e) {
     e.stopImmediatePropagation();
     e.preventDefault();
@@ -142,11 +130,13 @@ async function onSubmit(e) {
     // prepare to get target data
     let targetUserNpub = document.getElementById('npub').value;
     let targetUserPubkey = nt.nip19.decode(targetUserNpub).data;
+    console.log("Derived target user's pubkey:", targetUserPubkey);
 
     // prepare to get user's data
     let userNsec = document.getElementById('nsec').value;
     let userPrivateKey = nt.nip19.decode(userNsec).data;
     let userPubkey = nt.getPublicKey(userPrivateKey);
+    console.log("Derived user's pubkey:", userPubkey);
 
     // get data concurrently
     let allPromiseStatuses = await Promise.allSettled([
@@ -159,9 +149,10 @@ async function onSubmit(e) {
 
     // merge both lists
     let newList = mergeLists(targetFollowers, contactList);
-    print('New contact list: ' + newList.length);
+    console.log('New contact list:', newList);
 
     // work on new event
+    console.log('Current contact list event:', contactListEvent);
     let newEvent = contactListEvent;
     newEvent.created_at = Math.floor(Date.now() / 1000);
     newEvent.tags = newList;
@@ -169,14 +160,14 @@ async function onSubmit(e) {
 
     // sign the new event
     newEvent.sig = nt.getSignature(newEvent, userPrivateKey);
+    console.log('New contact list event:', newEvent);
 
     // propagate
     try {
         await relay.publish(newEvent);
-        print('Event published, contact list updated.');
-        let diff = newList.length - contactList.length;
+        console.log('Published!');
         window.alert(
-        `Done!\nNow you follow ${diff} new people.`);
+        `Done!\nNow you follow ${newList.length - contactList.length} new people.`);
     } catch (error) {
         throw new TypeError(error);
     }
@@ -184,3 +175,25 @@ async function onSubmit(e) {
 }
 document.getElementById('follow-form').addEventListener('submit', onSubmit);
 
+
+
+/*
+async function createInvoiceAndPay() {
+    if (typeof window.webln === 'undefined') {
+        return;
+    }
+    await window.webln.enable();
+    const res = await fetch('https://globalthreat.info/api/payments/invoice', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+            description: 'get my follow on at follows.lol!'
+        })
+    });
+    const invoice = await res.json();
+    const result = await webln.lnurl('zap@pay.globalthreat.info');
+    console.log(result);
+}
+*/
