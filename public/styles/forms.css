@@ -46,6 +46,10 @@ form .field.row {
 	flex-direction: row;
 }
 
+form .hidden {
+    display: none;
+}
+
 form input:not([type='checkbox'], [type='radio']) {
 	background-color: var(--form-field-background-color);
 	color: var(--form-field-color);
