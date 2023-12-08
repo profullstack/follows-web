@@ -105,7 +105,7 @@ function getContactListEvent(userPubkey, success) {
         if (eventValidation !== true) {
             throw new TypeError("We received a fake event!");
         } else {
-            print("Our current contact list:" + event.tags.length);
+            print("Our current contact list: " + event.tags.length);
             success(event);
         }
     });
