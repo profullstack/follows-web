@@ -206,14 +206,18 @@ async function onSubmit(e) {
     }
 
     // propagate
-    try {
-        await relay.publish(signedEvent);
-        print('Event published, contact list updated.');
-        let diff = newList.length - contactList.length;
-        window.alert(
-        `Done!\nNow you follow ${diff} new people.`);
-    } catch (error) {
-        throw new TypeError(error);
+    let diff = newList.length - contactList.length;
+    if (diff > 0) {
+        try {
+            await relay.publish(signedEvent);
+            print('Event published, contact list updated.');
+            window.alert(
+            `Done!\nNow you follow ${diff} new people.`);
+        } catch (error) {
+            throw new TypeError(error);
+        }
+    } else {
+        window.alert("Sorry, we couldn't find new people to follow.");
     }
     enableButton();
 }
