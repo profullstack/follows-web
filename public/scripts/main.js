@@ -158,7 +158,7 @@ async function onSubmit(e) {
     disableButton();
 
     // prepare to get target data
-    let targetUserNpub = document.getElementById('npub').value;
+    let targetUserNpub = document.getElementById('npub').value.trim();
     let targetUserPubkey = nt.nip19.decode(targetUserNpub).data;
 
     // prepare to get user's data
