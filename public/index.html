@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="./logo.png" />
-    <link rel="apple-touch-icon" sizes="128x128" href="./logo.png" />
-    <link rel="manifest" href="./manifest.json" crossorigin="use-credentials" />
-    <link rel="shortcut icon" type="image/png" href="./logo.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="./logo.png" />
-    <meta name="msapplication-TileColor" content="#ffffff" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="./logo.png">
+    <link rel="apple-touch-icon" sizes="128x128" href="./logo.png">
+    <link rel="manifest" href="./manifest.json" crossorigin="use-credentials">
+    <link rel="shortcut icon" type="image/png" href="./logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./logo.png">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="theme-color" content="#ffffff">
     <title>The Nostr follower tool</title>
-    <link rel="stylesheet" type="text/css" href="./styles/main.css" />
-    <script src="./scripts/nostr.bundle.js" ></script>
+    <link rel="stylesheet" type="text/css" href="./styles/main.css">
+    <script src="./scripts/nostr.bundle.js"></script>
     <script src="./scripts/main.js" type="module"></script>
   </head>
   <body>
@@ -20,7 +20,7 @@
       <section>
         <form id="follow-form">
           <h1>
-            <img id="logo" src="./logo.png" alt="" /> The Nostr follower tool
+            <img id="logo" src="./logo.png" alt=""> The Nostr follower tool
           </h1>
           <div id="nsec-field" class="hidden">
             Private key:&nbsp;
@@ -29,7 +29,7 @@
               style="width: 50vw"
               type="password"
               placeholder="Your private key (nsec...)"
-            />
+            >
           </div>
           <div class="field">
             <input
@@ -37,15 +37,15 @@
               style="width: 50vw"
               type="text"
               placeholder="npub..."
-            />
+            >
             <button id="follow-button" disabled="disabled">follow</button>
           </div>
         </form>
       </section>
-          <div>
-              <code id="html-log">
-              </code>
-          </div>
+      <div>
+        <code id="html-log">
+        </code>
+      </div>
     </main>
 
     <footer>
