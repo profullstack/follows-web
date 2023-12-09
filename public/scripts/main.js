@@ -171,12 +171,12 @@ async function onSubmit(e) {
     // get data concurrently
     let allPromiseStatuses = await Promise.allSettled([
         getTargetFollowersPromise(targetUserPubkey),
-        getContactListEventPromise(userPubkey, "own"),
+        getContactListEventPromise(userPubkey, "own"), // ours
         getContactListEventPromise(targetUserPubkey, "target user's")
     ]);
     let targetFollowers = allPromiseStatuses[0].value;
-    let contactListEvent = allPromiseStatuses[1].value;
-    let contactList = contactListEvent.tags;
+    let contactListEvent = allPromiseStatuses[1].value; // ours
+    let contactList = contactListEvent.tags; // ours
     let targetContactList = allPromiseStatuses[2].value.tags;
 
     // merge the three lists
