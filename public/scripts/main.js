@@ -197,11 +197,11 @@ async function onSubmit(e) {
     // sign the new event
     let signedEvent = null;
     if (!window.nostr) {
-        console.log('nsec mode');
+        // nsec mode
         newEvent.sig = nt.getSignature(newEvent, userPrivateKey);
         signedEvent = newEvent;
     } else {
-        console.log('extension mode');
+        // extension mode
         signedEvent = await window.nostr.signEvent(newEvent);
     }
 
