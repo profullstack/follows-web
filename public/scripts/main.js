@@ -1,10 +1,3 @@
-// this must come first
-window.addEventListener("load", (event) => {
-    console.log('Page loaded.');
-    // check the presence of nostr browser extension
-    checkNostrExtension();
-});
-
 // define our tools
 const nt = window.NostrTools;
 
@@ -96,8 +89,10 @@ function getTargetFollowersPromise(targetUserPubkey) {
     });
 }
 
-function getContactListEvent(userPubkey, success) {
-    print('Getting own contact list...');
+function getContactListEvent(userPubkey, label, success) {
+    // the label should be either "own" or, for exmaple, 
+    // "target user's"
+    print(`Getting ${label} contact list...`);
     let filter = {
         "authors": [userPubkey],
         "kinds": [3],
@@ -112,15 +107,15 @@ function getContactListEvent(userPubkey, success) {
         if (eventValidation !== true) {
             throw new TypeError("We received a fake event!");
         } else {
-            print("Our current contact list: " + event.tags.length);
+            print(`Contact list size (${label}): ` + event.tags.length);
             success(event);
         }
     });
 }
 // wrap function above in a promise
-function getContactListEventPromise(userPubkey) {
+function getContactListEventPromise(userPubkey, label) {
     return new Promise((result) => {
-        getContactListEvent(userPubkey, (success) => {
+        getContactListEvent(userPubkey, label, (success) => {
             result(success);
         })
     });
@@ -140,19 +135,17 @@ function mergeLists(list1, list2) {
     return(result);
 }
 
-function checkNostrExtension() {
-    if (!window.hasOwnProperty('nostr')) { // no browser extension detected
-        console.log('No Nostr browser extension detected.');
-        document
-            .getElementById('nsec-field')
-            .setAttribute('class', 'field');
-        window.alert(
-            `We were unable to detect a Nostr browser extension.\n` +
-            `We added a field so that you can manually enter your private key.\n` +
-            `Use this option only if you know what you're doing.\n` +
-            `If you don't, it is best for you to first get a ` +
-            `Nostr browser extension, for example from https://getalby.com`);
-    }
+if (!window.hasOwnProperty('nostr')) { // no browser extension detected
+    console.log('No Nostr browser extension detected.');
+    document
+        .getElementById('nsec-field')
+        .setAttribute('class', 'field');
+    window.alert(
+        `We were unable to detect a Nostr browser extension.\n` +
+        `We added a field so that you can manually enter your private key.\n` +
+        `Use this option only if you know what you're doing.\n` +
+        `If you don't, it is best for you to first get a ` +
+        `Nostr browser extension, for example from https://getalby.com`);
 }
 
 // main function
@@ -178,15 +171,19 @@ async function onSubmit(e) {
     // get data concurrently
     let allPromiseStatuses = await Promise.allSettled([
         getTargetFollowersPromise(targetUserPubkey),
-        getContactListEventPromise(userPubkey)
+        getContactListEventPromise(userPubkey, "own"),
+        getContactListEventPromise(targetUserPubkey, "target user's")
     ]);
     let targetFollowers = allPromiseStatuses[0].value;
     let contactListEvent = allPromiseStatuses[1].value;
     let contactList = contactListEvent.tags;
+    let targetContactList = allPromiseStatuses[2].value.tags;
 
-    // merge both lists
-    let newList = mergeLists(targetFollowers, contactList);
-    print('New contact list: ' + newList.length);
+    // merge the three lists
+    print('Consolidating lists...');
+    let targetList = mergeLists(targetFollowers, targetContactList);
+    let newList = mergeLists(targetList, contactList);
+    print('Making new contact list: ' + newList.length);
 
     // work on new event
     let newEvent = contactListEvent;
