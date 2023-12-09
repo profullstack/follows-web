@@ -1,11 +1,18 @@
+// this must come first
+window.addEventListener("load", (event) => {
+    console.log('Page loaded.');
+    // check the presence of nostr browser extension
+    checkNostrExtension();
+});
+
 // define our tools
 const nt = window.NostrTools;
 
-// button reactivity
+// reactivity
 function disableButton() {
     document
         .getElementById('follow-button')
-        .setAttribute('disabled', 'true');
+        .setAttribute('disabled', 'disabled');
 }
 function enableButton() {
     document
@@ -48,7 +55,7 @@ relay.on('error', () => {
 })
 
 async function connectRelays() {
-    print('Connecting relays...');
+    print('Connecting to relays...');
     await Promise.allSettled(
         [
             relay.connect(),
@@ -133,6 +140,21 @@ function mergeLists(list1, list2) {
     return(result);
 }
 
+function checkNostrExtension() {
+    if (!window.hasOwnProperty('nostr')) { // no browser extension detected
+        console.log('No Nostr browser extension detected.');
+        document
+            .getElementById('nsec-field')
+            .setAttribute('class', 'field');
+        window.alert(
+            `We were unable to detect a Nostr browser extension.\n` +
+            `We added a field so that you can manually enter your private key.\n` +
+            `Use this option only if you know what you're doing.\n` +
+            `If you don't, it is best for you to first get a ` +
+            `Nostr browser extension, for example from https://getalby.com`);
+    }
+}
+
 // main function
 async function onSubmit(e) {
     e.stopImmediatePropagation();
@@ -144,9 +166,16 @@ async function onSubmit(e) {
     let targetUserPubkey = nt.nip19.decode(targetUserNpub).data;
 
     // prepare to get user's data
-    let userNsec = document.getElementById('nsec').value;
-    let userPrivateKey = nt.nip19.decode(userNsec).data;
-    let userPubkey = nt.getPublicKey(userPrivateKey);
+    let userPubkey, userNsec, userPrivateKey = null;
+    if (window.nostr) {
+        userPubkey = await window.nostr.getPublicKey();
+        console.log('public key, according to extension is:', userPubkey);
+    } else {
+        userNsec = document.getElementById('nsec').value;
+        userPrivateKey = nt.nip19.decode(userNsec).data;
+        userPubkey = nt.getPublicKey(userPrivateKey);
+        console.log('public key received on the form is:', userPubkey);
+    }
 
     // get data concurrently
     let allPromiseStatuses = await Promise.allSettled([
@@ -168,11 +197,19 @@ async function onSubmit(e) {
     newEvent.id = nt.getEventHash(newEvent);
 
     // sign the new event
-    newEvent.sig = nt.getSignature(newEvent, userPrivateKey);
+    let signedEvent = null;
+    if (!window.nostr) {
+        console.log('nsec mode');
+        newEvent.sig = nt.getSignature(newEvent, userPrivateKey);
+        signedEvent = newEvent;
+    } else {
+        console.log('extension mode');
+        signedEvent = await window.nostr.signEvent(newEvent);
+    }
 
     // propagate
     try {
-        await relay.publish(newEvent);
+        await relay.publish(signedEvent);
         print('Event published, contact list updated.');
         let diff = newList.length - contactList.length;
         window.alert(
