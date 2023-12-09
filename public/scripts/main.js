@@ -66,13 +66,15 @@ function getTargetFollowers(targetUserPubkey, success) {
     let filter = {
         "cache": [
             "user_followers",
-            { "pubkey": targetUserPubkey }
+            { "pubkey": targetUserPubkey, "limit": 999 }
         ]
     }
     let sub = cacheRelay.sub([filter]);
     var followers = []
     sub.on('event', event => {
-        followers.push(["p", event.pubkey]); // match contact list format
+        if (event.kind === 0) {
+            followers.push(["p", event.pubkey]); // match contact list format
+        }
     });
     sub.on('eose', () => {
         sub.unsub()
@@ -99,9 +101,6 @@ function getContactListEvent(userPubkey, label, success) {
         "limit": 1
     }
     let sub = relay.sub([filter]);
-    sub.on('eose', () => {
-        sub.unsub()
-    });
     sub.on('event', event => {
         let eventValidation = nt.verifySignature(event);
         if (eventValidation !== true) {
@@ -110,6 +109,9 @@ function getContactListEvent(userPubkey, label, success) {
             print(`Contact list size (${label}): ` + event.tags.length);
             success(event);
         }
+    });
+    sub.on('eose', () => {
+        sub.unsub()
     });
 }
 // wrap function above in a promise
@@ -135,6 +137,7 @@ function mergeLists(list1, list2) {
     return(result);
 }
 
+// if there is no browser extension present, activate nsec input field
 if (!window.hasOwnProperty('nostr')) { // no browser extension detected
     console.log('No Nostr browser extension detected.');
     document
@@ -170,14 +173,14 @@ async function onSubmit(e) {
 
     // get data concurrently
     let allPromiseStatuses = await Promise.allSettled([
-        getTargetFollowersPromise(targetUserPubkey),
         getContactListEventPromise(userPubkey, "own"), // ours
-        getContactListEventPromise(targetUserPubkey, "target user's")
+        getContactListEventPromise(targetUserPubkey, "target user's"),
+        getTargetFollowersPromise(targetUserPubkey)
     ]);
-    let targetFollowers = allPromiseStatuses[0].value;
-    let contactListEvent = allPromiseStatuses[1].value; // ours
+    let contactListEvent = allPromiseStatuses[0].value; // ours
     let contactList = contactListEvent.tags; // ours
-    let targetContactList = allPromiseStatuses[2].value.tags;
+    let targetContactList = allPromiseStatuses[1].value.tags;
+    let targetFollowers = allPromiseStatuses[2].value;
 
     // merge the three lists
     print('Consolidating lists...');
