@@ -169,12 +169,10 @@ async function onSubmit(e) {
     let userPubkey, userNsec, userPrivateKey = null;
     if (window.nostr) {
         userPubkey = await window.nostr.getPublicKey();
-        console.log('public key, according to extension is:', userPubkey);
     } else {
         userNsec = document.getElementById('nsec').value;
         userPrivateKey = nt.nip19.decode(userNsec).data;
         userPubkey = nt.getPublicKey(userPrivateKey);
-        console.log('public key received on the form is:', userPubkey);
     }
 
     // get data concurrently
