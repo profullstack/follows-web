@@ -38,7 +38,7 @@ cacheRelay.on('error', () => {
 })
 
 // set connection to relay
-window.relay = nt.relayInit('wss://relay.primal.net/')
+window.relay = nt.relayInit('wss://nos.lol/')
 relay.on('connect', () => {
     print(`Connected to ${relay.url}`)
 })
