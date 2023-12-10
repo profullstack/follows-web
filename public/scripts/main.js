@@ -207,7 +207,7 @@ async function onSubmit(e) {
 
     // propagate
     let diff = newList.length - contactList.length;
-    if (diff > 0) {
+    if (diff > 0) { // never accidentally remove contacts
         try {
             await relay.publish(signedEvent);
             print('Event published, contact list updated.');
