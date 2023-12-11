@@ -150,6 +150,20 @@ function mergeLists(list1, list2) {
     return(result);
 }
 
+// sign according to either extension or manual private key mode
+async function signEvent(userPrivateKey, event) {
+    let signedEvent = null;
+    if (!window.nostr) {
+        // nsec mode
+        newEvent.sig = nt.getSignature(event, userPrivateKey);
+        signedEvent = event;
+    } else {
+        // extension mode
+        signedEvent = await window.nostr.signEvent(event);
+    }
+    return(signedEvent);
+}
+
 // if there is no browser extension present, activate nsec input field
 if (!window.hasOwnProperty('nostr')) { // no browser extension detected
     console.log('No Nostr browser extension detected.');
@@ -166,6 +180,7 @@ if (!window.hasOwnProperty('nostr')) { // no browser extension detected
 
 // main function
 async function onSubmit(e) {
+    // reactivity stuff
     e.stopImmediatePropagation();
     e.preventDefault();
     disableButton();
@@ -207,24 +222,17 @@ async function onSubmit(e) {
     newEvent.tags = newList;
     newEvent.id = nt.getEventHash(newEvent);
 
-    // sign the new event
-    let signedEvent = null;
-    if (!window.nostr) {
-        // nsec mode
-        newEvent.sig = nt.getSignature(newEvent, userPrivateKey);
-        signedEvent = newEvent;
-    } else {
-        // extension mode
-        signedEvent = await window.nostr.signEvent(newEvent);
-    }
-
-    // propagate
+    // calculate how many new contacts
     let diff = newList.length - contactList.length;
     if (diff > 0) { // never accidentally remove contacts
+        print(`Adding ${diff} new contacts...`, 'DarkOrange');
+        // sign the new event
+        let signedEvent = await signEvent(userPrivateKey, newEvent);
         try {
+            // propagate
             await relay.publish(signedEvent);
             print('Event published, contact list updated.');
-            print(`<b>Success! Now you follow ${diff} new people.</b>`, 'DarkGreen');
+            print(`<b>Success! Now you follow ${diff} new people.</b>`, 'Green');
         } catch (error) {
             throw new TypeError(error);
         }
