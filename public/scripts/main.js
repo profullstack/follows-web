@@ -172,10 +172,11 @@ if (!window.hasOwnProperty('nostr')) { // no browser extension detected
         .setAttribute('class', 'field');
     window.alert(
         `We were unable to detect a Nostr browser extension.\n` +
-        `We added a field so that you can manually enter your private key.\n` +
+        `We just added a field for you to manually enter your private key, which ` +
+        `is then stored locally in your browser (it is never sent to us).\n` +
         `Use this option only if you know what you're doing.\n` +
         `If you don't, it is best for you to first get a ` +
-        `Nostr browser extension, for example from https://getalby.com`);
+        `Nostr browser extension, for example from https://GetAlby.com`);
 }
 
 // main function
