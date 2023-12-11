@@ -10,4 +10,4 @@
   - [ ] enter a tag like #nostr and follow everyone who is associated with that tag
 - [ ] fetch user's relays to use for syncing
   - [ ] add user's list of relays to our default list
-- [ ] add `<p class="ok">{successMessage}</p>` instead of `alert()`
+- [X] add `<p class="ok">{successMessage}</p>` instead of `alert()`
