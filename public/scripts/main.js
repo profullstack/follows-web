@@ -224,13 +224,12 @@ async function onSubmit(e) {
         try {
             await relay.publish(signedEvent);
             print('Event published, contact list updated.');
-            window.alert(
-            `Done!\nNow you follow ${diff} new people.`);
+            print(`Success!\nNow you follow ${diff} new people.`, 'DarkGreen');
         } catch (error) {
             throw new TypeError(error);
         }
     } else {
-        window.alert("Sorry, we couldn't find new people to follow.");
+        print("Sorry, we couldn't find new people to follow.", 'DarkRed');
     }
     enableButton();
 }
