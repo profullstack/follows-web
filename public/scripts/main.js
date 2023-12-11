@@ -224,7 +224,7 @@ async function onSubmit(e) {
         try {
             await relay.publish(signedEvent);
             print('Event published, contact list updated.');
-            print(`Success!\nNow you follow ${diff} new people.`, 'DarkGreen');
+            print(`<b>Success! Now you follow ${diff} new people.</b>`, 'DarkGreen');
         } catch (error) {
             throw new TypeError(error);
         }
