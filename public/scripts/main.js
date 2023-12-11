@@ -1,3 +1,7 @@
+// parameters
+const cacheRelayUrl = "wss://cache2.primal.net/v1";
+const defaultRelayUrl = "wss://nos.lol";
+
 // define our tools
 const nt = window.NostrTools;
 
@@ -16,9 +20,12 @@ function enableButton() {
 // force firefox to disable button until connected
 disableButton();
 
-// print console.log to div
-function print(msg) {
-    var htmlLog = document.getElementById('html-log');
+// print log to div
+function print(msg, color) {
+    const htmlLog = document.getElementById('html-log');
+    if (color) {
+        msg = `<a style="color:${color};">${msg}</a>`
+    }
     // check what we need to output (object or text) and add it to the html element.
     if (typeof msg == 'object') {
         htmlLog.innerHTML += (JSON && JSON.stringify ? JSON.stringify(msg) : msg) + '<br>';
@@ -28,23 +35,29 @@ function print(msg) {
 }
 
 // set connection to cache relay
-window.cacheRelay = nt.relayInit('wss://cache2.primal.net/v1')
+window.cacheRelay = nt.relayInit(cacheRelayUrl);
 cacheRelay.on('connect', () => {
-    print(`Connected to ${cacheRelay.url}`)
+    print(`Connected to cache relay ${cacheRelay.url}`, 'DarkGreen')
 })
 cacheRelay.on('error', () => {
-    console.log(`Failed to connect to ${cacheRelay.url}`)
-    window.alert("Couldn't connect to the cache server. Try reloading the page.")
+    console.log(`Failed to connect to ${cacheRelay.url}`);
+    print(
+        "Couldn't connect to cache server.\n" +
+        "Plese try reloading the page.", 'DarkRed'
+    );
 })
 
-// set connection to relay
-window.relay = nt.relayInit('wss://nos.lol/')
+// set connection to default relay
+window.relay = nt.relayInit(defaultRelayUrl);
 relay.on('connect', () => {
-    print(`Connected to ${relay.url}`)
+    print(`Connected to default relay ${relay.url}`, 'DarkGreen')
 })
 relay.on('error', () => {
-    console.log(`Failed to connect to ${relay.url}`)
-    window.alert("Couldn't connect to the relay. Try reloading the page.")
+    console.log(`Failed to connect to ${relay.url}`);
+    print(
+        "Couldn't connect to default relay.\n" +
+        "Please try reloading the page.", 'DarkRed'
+    );
 })
 
 async function connectRelays() {
