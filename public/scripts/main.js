@@ -229,7 +229,7 @@ async function onSubmit(e) {
             throw new TypeError(error);
         }
     } else {
-        print("Sorry, we couldn't find new people to follow.", 'DarkRed');
+        print("Sorry, we couldn't find any new people to follow.", 'DarkRed');
     }
     enableButton();
 }
