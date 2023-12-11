@@ -37,27 +37,27 @@ function print(msg, color) {
 // set connection to cache relay
 window.cacheRelay = nt.relayInit(cacheRelayUrl);
 cacheRelay.on('connect', () => {
-    print(`Connected to cache relay ${cacheRelay.url}`, 'DarkGreen')
+    print(`Connected to cache relay ${cacheRelay.url}`)
 })
 cacheRelay.on('error', () => {
-    console.log(`Failed to connect to ${cacheRelay.url}`);
     print(
         "Couldn't connect to cache server.\n" +
-        "Plese try reloading the page.", 'DarkRed'
+        "Please try reloading the page.", 'Red'
     );
+    throw new TypeError(`Failed to connect to ${cacheRelay.url}`);
 })
 
 // set connection to default relay
 window.relay = nt.relayInit(defaultRelayUrl);
 relay.on('connect', () => {
-    print(`Connected to default relay ${relay.url}`, 'DarkGreen')
+    print(`Connected to default relay ${relay.url}`)
 })
 relay.on('error', () => {
-    console.log(`Failed to connect to ${relay.url}`);
     print(
         "Couldn't connect to default relay.\n" +
-        "Please try reloading the page.", 'DarkRed'
+        "Please try reloading the page.", 'Red'
     );
+    throw new TypeError(`Failed to connect to ${cacheRelay.url}`);
 })
 
 async function connectRelays() {
