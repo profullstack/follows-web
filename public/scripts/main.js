@@ -32,6 +32,8 @@ function print(msg, color) {
     } else {
         htmlLog.innerHTML += msg + '<br>';
     }
+    // keep scroll down
+    htmlLog.scrollTop = htmlLog.scrollHeight;
 }
 
 // set connection to cache relay

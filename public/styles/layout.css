@@ -30,6 +30,19 @@ form {
 	margin-top: 6rem;
 }
 
+pre {
+    overflow-y: auto;
+    height: 170px;
+}
+
+#html-log::before {
+    position: absolute;
+    content: "";
+    height: 8%;
+    width: -moz-available;
+    background: linear-gradient(white, transparent);
+    pointer-events: none;
+}
 
 footer {
 	margin: 1.2rem;
