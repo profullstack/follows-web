@@ -31,7 +31,7 @@ if [ "$result" == "exists" ]; then
       echo "syncing ${host}"
       echo "---------------------"
       rsync ${dry[@]} ${args[@]} ./ ${user}@${host}:www/${name}/${project}
-      #ssh -t ${user}@${host} \$HOME/www/${name}/${project}/bin/post-deploy.sh
+      ssh -t ${user}@${host} \$HOME/www/${name}/${project}/bin/post-deploy.sh
     done
 
 else
