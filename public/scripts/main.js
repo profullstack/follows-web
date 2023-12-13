@@ -214,6 +214,13 @@ async function onSubmit(e) {
     ]);
     let contactListEvent = allPromiseStatuses[0].value; // ours
     let contactList = contactListEvent.tags; // ours
+    if ( !contactList > 0 ) { // never accidentally remove contacts
+        throw new TypeError(`Could not read current contact list.`);
+        print(
+            `Could not read contact list for pubkey "${userPubkey,}".\n` +
+            `Please try again refreshing the page.`
+        );
+    }
     let targetContactList = allPromiseStatuses[1].value.tags;
     let targetFollowers = allPromiseStatuses[2].value;
 
