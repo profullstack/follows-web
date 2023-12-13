@@ -18,7 +18,6 @@ function enableButton() {
         .getElementById('follow-button')
         .removeAttribute('disabled');
 }
-
 // force firefox to disable button until connected
 disableButton();
 
@@ -28,9 +27,12 @@ function print(msg, color) {
     if (color) {
         msg = `<a style="color:${color};">${msg}</a>`
     }
-    // check what we need to output (object or text) and add it to the html element.
+    // check what we need to output (object or text)
+    // and add it to the html element.
     if (typeof msg == 'object') {
-        htmlLog.innerHTML += (JSON && JSON.stringify ? JSON.stringify(msg) : msg) + '<br>';
+        htmlLog.innerHTML += (
+            JSON && JSON.stringify ? JSON.stringify(msg) : msg
+        ) + '<br>';
     } else {
         htmlLog.innerHTML += msg + '<br>';
     }
