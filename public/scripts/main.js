@@ -1,7 +1,7 @@
 // parameters
 const cacheRelayUrl = "wss://cache2.primal.net/v1";
 //const cacheRelayUrl = "wss://cache.follows.lol";
-const defaultRelayUrl = "wss://nos.lol";
+const relayList = ["wss://nos.lol", "wss://relay.follows.lol", "wss://relay.primal.net"];
 const userFollowersLimit = 999;
 
 // define our tools
@@ -40,44 +40,48 @@ function print(msg, color) {
     htmlLog.scrollTop = htmlLog.scrollHeight;
 }
 
-// set connection to cache relay
-window.cacheRelay = nt.relayInit(cacheRelayUrl);
-cacheRelay.on('connect', () => {
-    print(`Connected to cache relay ${cacheRelay.url}`)
-})
-cacheRelay.on('error', () => {
-    print(
-        "Couldn't connect to cache server.\n" +
-        "Please try reloading the page.", 'Red'
-    );
-    throw new TypeError(`Failed to connect to ${cacheRelay.url}`);
-})
 
-// set connection to default relay
-window.relay = nt.relayInit(defaultRelayUrl);
-relay.on('connect', () => {
-    print(`Connected to default relay ${relay.url}`)
-})
-relay.on('error', () => {
-    print(
-        "Couldn't connect to default relay.\n" +
-        "Please try reloading the page.", 'Red'
-    );
-    throw new TypeError(`Failed to connect to ${cacheRelay.url}`);
-})
-
+// connect to relays concurrently
+window.relays = [];
 async function connectRelays() {
+    // initialize cache relay connection
+    window.cacheRelay = nt.relayInit(cacheRelayUrl);
+    cacheRelay.on('connect', () => {
+        print(`Connected to cache relay ${cacheRelay.url}`)
+    })
+    cacheRelay.on('error', () => {
+        print(
+            "Couldn't connect to cache server.\n" +
+            "Please try reloading the page.", 'Red'
+        );
+        throw new TypeError(`Failed to connect to ${cacheRelay.url}`);
+    })
+    // handle regular relays
     print('Connecting to relays...');
-    await Promise.allSettled(
-        [
-            relay.connect(),
-            cacheRelay.connect()
-        ]
-    );
-    // enable form button
+    let promises = [cacheRelay.connect()];
+    for ( let r in relayList ) {
+        // initialize relay connection
+        let url = relayList[r];
+        window.relays[r] = nt.relayInit(url);
+        relays[r].on('connect', () => {
+            print(`Connected to relay ${url}`)
+        });
+        relays[r].on('error', () => {
+            print(
+                `Couldn't connect to relay ${url}.\n` +
+                `Please try reloading the page.`, 'Red'
+            );
+            throw new TypeError(`Failed to connect to ${url}`);
+        });
+        // connect
+        promises.push(relays[r].connect());
+    }
+    // concurrency
+    await Promise.allSettled(promises);
+    // reactivity
     enableButton();
 }
-// connect to relays
+// connect to all now
 await connectRelays();
 
 function getTargetFollowers(targetUserPubkey, success) {
@@ -119,7 +123,7 @@ function getContactListEvent(userPubkey, label, success) {
         "kinds": [3],
         "limit": 1
     }
-    let sub = relay.sub([filter]);
+    let sub = relays[0].sub([filter]);
     sub.on('event', event => {
         let eventValidation = nt.verifySignature(event);
         if (eventValidation !== true) {
@@ -244,7 +248,7 @@ async function onSubmit(e) {
         let signedEvent = await signEvent(userPrivateKey, newEvent);
         try {
             // propagate
-            await relay.publish(signedEvent);
+            await relay[0].publish(signedEvent);
             print('Event published, contact list updated.');
             print(`<b>Success! Now you follow ${diff} new people.</b>`, 'Green');
         } catch (error) {
