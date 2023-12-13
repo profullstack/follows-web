@@ -1,6 +1,8 @@
 // parameters
 const cacheRelayUrl = "wss://cache2.primal.net/v1";
+//const cacheRelayUrl = "wss://cache.follows.lol";
 const defaultRelayUrl = "wss://nos.lol";
+const userFollowersLimit = 999;
 
 // define our tools
 const nt = window.NostrTools;
@@ -81,11 +83,11 @@ function getTargetFollowers(targetUserPubkey, success) {
     let filter = {
         "cache": [
             "user_followers",
-            { "pubkey": targetUserPubkey, "limit": 999 }
+            { "pubkey": targetUserPubkey, "limit": userFollowersLimit }
         ]
     }
     let sub = cacheRelay.sub([filter]);
-    var followers = []
+    let followers = [];
     sub.on('event', event => {
         if (event.kind === 0) {
             followers.push(["p", event.pubkey]); // match contact list format
