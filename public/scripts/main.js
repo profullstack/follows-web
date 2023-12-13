@@ -217,7 +217,7 @@ async function onSubmit(e) {
     if ( !contactList > 0 ) { // never accidentally remove contacts
         throw new TypeError(`Could not read current contact list.`);
         print(
-            `Could not read contact list for pubkey "${userPubkey,}".\n` +
+            `Could not read contact list for pubkey "${userPubkey}".\n` +
             `Please try again refreshing the page.`
         );
     }
