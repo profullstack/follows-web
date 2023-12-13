@@ -248,7 +248,7 @@ async function onSubmit(e) {
         let signedEvent = await signEvent(userPrivateKey, newEvent);
         try {
             // propagate
-            await relay[0].publish(signedEvent);
+            await relays[0].publish(signedEvent);
             print('Event published, contact list updated.');
             print(`<b>Success! Now you follow ${diff} new people.</b>`, 'Green');
         } catch (error) {
