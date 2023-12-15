@@ -201,9 +201,10 @@ async function onSubmit(e) {
     let targetUserPubkey = nt.nip19.decode(targetUserNpub).data;
 
     // prepare to get user's data
-    let userPubkey, userNsec, userPrivateKey = null;
+    let userPubkey, userRelays, userNsec, userPrivateKey = null;
     if (window.nostr) {
         userPubkey = await window.nostr.getPublicKey();
+        userRelays = await window.nostr.getRelays();
     } else {
         userNsec = document.getElementById('nsec').value;
         userPrivateKey = nt.nip19.decode(userNsec).data;
