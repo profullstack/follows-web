@@ -61,7 +61,7 @@ async function connectRelays() {
     let promises = [cacheRelay.connect()];
     for ( let r in relayList ) {
         // initialize relay connection
-        let url = relayList[r];
+        const url = relayList[r];
         window.relays[r] = nt.relayInit(url);
         relays[r].on('connect', () => {
             print(`Connected to relay ${url}`)
@@ -86,13 +86,13 @@ await connectRelays();
 
 function getTargetFollowers(targetUserPubkey, success) {
     print('Getting target followers...');
-    let filter = {
+    const filter = {
         "cache": [
             "user_followers",
             { "pubkey": targetUserPubkey, "limit": userFollowersLimit }
         ]
     }
-    let sub = cacheRelay.sub([filter]);
+    const sub = cacheRelay.sub([filter]);
     let followers = [];
     sub.on('event', event => {
         if (event.kind === 0) {
@@ -118,12 +118,12 @@ function getContactListEvent(userPubkey, label, success) {
     // the label should be either "own" or, for exmaple, 
     // "target user's"
     print(`Getting ${label} contact list...`);
-    let filter = {
+    const filter = {
         "authors": [userPubkey],
         "kinds": [3],
         "limit": 1
     }
-    let sub = relays[0].sub([filter]);
+    const sub = relays[0].sub([filter]);
     sub.on('event', event => {
         let eventValidation = nt.verifySignature(event);
         if (eventValidation !== true) {
@@ -147,7 +147,7 @@ function getContactListEventPromise(userPubkey, label) {
 }
 
 function mergeLists(list1, list2) {
-    let listSum = list1.concat(list2);
+    const listSum = list1.concat(list2);
     let listSumPksOnly = [];
     listSum.forEach((i) => { // simplify list format
         listSumPksOnly.push(i[1]);
