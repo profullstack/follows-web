@@ -7,6 +7,10 @@ const userFollowersLimit = 999;
 // define our tools
 const nt = window.NostrTools;
 
+// read user's relay list if present
+const userRelays = window.nostr ? await window.nostr.getRelays() : null;
+console.log(userRelays);
+
 // reactivity
 function disableButton() {
     document
@@ -199,15 +203,10 @@ async function onSubmit(e) {
     let targetUserPubkey = nt.nip19.decode(targetUserNpub).data;
 
     // prepare to get user's data
-    let userPubkey, userRelays, userNsec, userPrivateKey = null;
-    if (window.nostr) {
-        userPubkey = await window.nostr.getPublicKey();
-        userRelays = await window.nostr.getRelays();
-    } else {
-        userNsec = document.getElementById('nsec').value;
-        userPrivateKey = nt.nip19.decode(userNsec).data;
-        userPubkey = nt.getPublicKey(userPrivateKey);
-    }
+    const wn = window.nostr;
+    const userNsec = wn ? null : document.getElementById('nsec').value;
+    const userPrivateKey = wn ? null : nt.nip19.decode(userNsec).data;
+    const userPubkey = wn ? await wn.getPublicKey() : nt.getPublicKey(userPrivateKey);
 
     // get data concurrently
     let allPromiseStatuses = await Promise.allSettled([
