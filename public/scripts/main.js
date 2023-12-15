@@ -162,16 +162,14 @@ function mergeLists(list1, list2) {
 
 // sign according to either extension or manual private key mode
 async function signEvent(userPrivateKey, event) {
-    let signedEvent = null;
     if (!window.nostr) {
         // nsec mode
         newEvent.sig = nt.getSignature(event, userPrivateKey);
-        signedEvent = event;
+        return(event);
     } else {
         // extension mode
-        signedEvent = await window.nostr.signEvent(event);
+        return(await window.nostr.signEvent(event));
     }
-    return(signedEvent);
 }
 
 // if there is no browser extension present, activate nsec input field
