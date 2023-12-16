@@ -1,15 +1,10 @@
 // parameters
-const cacheRelayUrl = "wss://cache2.primal.net/v1";
-//const cacheRelayUrl = "wss://cache.follows.lol";
-const relayList = ["wss://nos.lol", "wss://relay.follows.lol", "wss://relay.primal.net"];
-const userFollowersLimit = 999;
+const cacheRelayUrl = "wss://cache2.primal.net/v1"; // "wss://cache.follows.lol";
+const defaultRelayList = ["wss://relay.primal.net"];
+const userFollowersLimit = 500;
 
 // define our tools
 const nt = window.NostrTools;
-
-// read user's relay list if present
-const userRelays = window.nostr ? await window.nostr.getRelays() : null;
-console.log(userRelays);
 
 // reactivity
 function disableButton() {
@@ -44,10 +39,25 @@ function print(msg, color) {
     htmlLog.scrollTop = htmlLog.scrollHeight;
 }
 
+// read user's relay list if present
+async function getRelays() {
+    let relayList = defaultRelayList;
+    if (window.hasOwnProperty('nostr')) {
+        const userRelays = await window.nostr.getRelays();
+        for (let r in Object.keys(userRelays)) {
+            const relayUrl = Object.keys(userRelays)[r];
+            const isWriteable = userRelays[relayUrl].write;
+            if (isWriteable) {
+                relayList.push(relayUrl);
+            }
+        }
+    }
+    return(relayList);
+}
 
 // connect to relays concurrently
-window.relays = [];
 async function connectRelays() {
+    window.relays = [];
     // initialize cache relay connection
     window.cacheRelay = nt.relayInit(cacheRelayUrl);
     cacheRelay.on('connect', () => {
@@ -63,6 +73,7 @@ async function connectRelays() {
     // handle regular relays
     print('Connecting to relays...');
     let promises = [cacheRelay.connect()];
+    const relayList = await getRelays();
     for ( let r in relayList ) {
         // initialize relay connection
         const url = relayList[r];
@@ -77,7 +88,7 @@ async function connectRelays() {
             );
             throw new TypeError(`Failed to connect to ${url}`);
         });
-        // connect
+        // connect promise
         promises.push(relays[r].connect());
     }
     // concurrency
@@ -85,8 +96,6 @@ async function connectRelays() {
     // reactivity
     enableButton();
 }
-// connect to all now
-await connectRelays();
 
 function getTargetFollowers(targetUserPubkey, success) {
     print('Getting target followers...');
@@ -177,19 +186,31 @@ async function signEvent(userPrivateKey, event) {
 }
 
 // if there is no browser extension present, activate nsec input field
-if (!window.hasOwnProperty('nostr')) { // no browser extension detected
-    console.log('No Nostr browser extension detected.');
-    document
-        .getElementById('nsec-field')
-        .setAttribute('class', 'field');
-    window.alert(
-        `We were unable to detect a Nostr browser extension.\n` +
-        `We just added a field for you to manually enter your private key, which ` +
-        `is then stored locally in your browser (it is never sent to us).\n` +
-        `Use this option only if you know what you're doing.\n` +
-        `If you don't, it is best for you to first get a ` +
-        `Nostr browser extension, for example from https://GetAlby.com`);
+function checkExtensionPresence() {
+    if (!window.hasOwnProperty('nostr')) { // no browser extension detected
+        console.log('No Nostr browser extension detected.');
+        document
+            .getElementById('nsec-field')
+            .setAttribute('class', 'field');
+        window.alert(
+            `We were unable to detect a Nostr browser extension.\n` +
+            `We just added a field for you to manually enter your private key, which ` +
+            `is then stored locally in your browser (it is never sent to us).\n` +
+            `Use this option only if you know what you're doing.\n` +
+            `If you don't, it is best for you to first get a ` +
+            `Nostr browser extension, for example from https://GetAlby.com`
+        );
+    }
 }
+
+// make sure everything is loaded before starting
+document.onreadystatechange = () => {
+    if (document.readyState === "complete") {
+        console.info("Loading complete.");
+        checkExtensionPresence();
+        connectRelays();
+    }
+};
 
 // main function
 async function onSubmit(e) {
