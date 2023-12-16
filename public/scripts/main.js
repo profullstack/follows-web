@@ -1,6 +1,6 @@
 // parameters
 const cacheRelayUrl = "wss://cache2.primal.net/v1"; // "wss://cache.follows.lol";
-const defaultRelayList = ["wss://relay.primal.net"];
+const defaultRelayList = ["wss://relay.primal.net", "wss://relay.follows.lol"];
 const userFollowersLimit = 500;
 
 // define our tools
@@ -207,10 +207,28 @@ function checkExtensionPresence() {
 document.onreadystatechange = () => {
     if (document.readyState === "complete") {
         console.info("Loading complete.");
+        // go go go
         checkExtensionPresence();
         connectRelays();
     }
 };
+
+async function propagate(event) {
+    let promises = [];
+    for (let r in relays) {
+        promises.push(relays[r].publish(event));
+    }
+    let statuses = await Promise.allSettled(promises);
+    let result = false;
+    for (let s in statuses) {
+        if (statuses[s].status === "fulfilled") {
+            result = true;
+        } else {
+            print(`Error publishing to relay ${s}.`, 'DarkRed');
+        }
+    }
+    return(result);
+}
 
 // main function
 async function onSubmit(e) {
@@ -265,13 +283,14 @@ async function onSubmit(e) {
         print(`Adding ${diff} new contacts...`, 'DarkOrange');
         // sign the new event
         let signedEvent = await signEvent(userPrivateKey, newEvent);
-        try {
-            // propagate
-            await relays[0].publish(signedEvent);
-            print('Event published, contact list updated.');
+        // propagate
+        //await relays[0].publish(signedEvent);
+        const propagationResult = await propagate(signedEvent);
+        if (propagationResult) {
+            print(`Event published, contact list updated.`);
             print(`<b>Success! Now you follow ${diff} new people.</b>`, 'Green');
-        } catch (error) {
-            throw new TypeError(error);
+        } else {
+            print(`Sorry, we couldn't update your contact list.`, 'DarkRed');
         }
     } else {
         print("Sorry, we couldn't find any new people to follow.", 'DarkRed');
