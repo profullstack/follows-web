@@ -1,69 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>The Nostr follower tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="./logo.png" />
+    <link rel="apple-touch-icon" sizes="128x128" href="./logo.png" />
+    <link rel="manifest" href="./manifest.json" crossorigin="use-credentials" />
+    <link rel="shortcut icon" type="image/png" href="./logo.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./logo.png" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="theme-color" content="#ffffff" />
+    <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline' 'self' 'unsafe-eval' *;"> -->
 
-<head>
-  <meta charset="utf-8" />
-  <title>The Nostr follower tool</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" href="./logo.png" />
-  <link rel="apple-touch-icon" sizes="128x128" href="./logo.png" />
-  <link rel="manifest" href="./manifest.json" crossorigin="use-credentials" />
-  <link rel="shortcut icon" type="image/png" href="./logo.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="./logo.png" />
-  <meta name="msapplication-TileColor" content="#ffffff" />
-  <meta name="theme-color" content="#ffffff" />
-  <link rel="stylesheet" type="text/css" href="./styles/main.css" />
-  <script src="./scripts/nostr.bundle.js"></script>
-  <script src="./scripts/main.js" type="module"></script>
-</head>
+    <link rel="stylesheet" type="text/css" href="./styles/main.css" />
+    <script src="./scripts/nostr.bundle.js"></script>
+    <script src="./scripts/main.js" type="module"></script>
+    <script
+      src="https://zapwebring.com/scripts/components/zap-webring.js"
+      type="module"
+    ></script>
+  </head>
 
-<body>
-  <main>
-    <section>
-      <form id="follow-form">
-        <h1>
-          <img id="logo" src="./logo.png" alt="" /> The Nostr follower tool
-        </h1>
-        <div id="nsec-field" class="hidden">
-          Private key:&nbsp;
-          <input id="nsec" style="width: 50vw" type="password" placeholder="Your private key (nsec...)" />
-        </div>
-        <div class="field">
-          <input id="npub" style="width: 50vw" type="text" placeholder="npub..." />
-          <button id="follow-button" disabled="disabled">follow</button>
-        </div>
-      </form>
-    </section>
-    <div>
-      <pre id="html-log"><br></pre>
-    </div>
-  </main>
+  <body>
+    <main>
+      <section>
+        <form id="follow-form">
+          <h1>
+            <a href="/"><img id="logo" src="./logo.png" alt="" /></a> The Nostr
+            follower tool
+          </h1>
+          <div id="nsec-field" class="hidden">
+            Private key:&nbsp;
+            <input
+              id="nsec"
+              style="width: 50vw"
+              type="password"
+              placeholder="Your private key (nsec...)"
+            />
+          </div>
+          <div class="field">
+            <input
+              id="npub"
+              style="width: 50vw"
+              type="text"
+              placeholder="npub..."
+            />
+            <button id="follow-button" disabled="disabled">follow</button>
+          </div>
+        </form>
+      </section>
+      <div>
+        <pre id="html-log"><br></pre>
+      </div>
 
-  <footer>
-    <p>
-      <small>
-        Follow my followers:
-        <a href="#"
-          onclick="document.getElementById('npub').value = 'npub19p3l898yf76s73m5pr0ru03a0y8ps6c3se6xcekz8d8v2f676kxs5vwdmw'; return false">npub19p3l898yf76s73m5pr0ru03a0y8ps6c3se6xcekz8d8v2f676kxs5vwdmw</a>
-        -
-        <a href="https://github.com/profullstack/follows-web" target="_blank">github</a>
-        -
-        <a href="https://pay.globalthreat.info/apps/4Ymzu5U5d7zr7xyX3WvokevrQXkc/crowdfund" target="_blank">crowd
-          fund</a>
-      </small>
-    </p>
-  </footer>
+      <zap-webring></zap-webring>
+    </main>
 
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-5G2HVL9W1C"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <footer>
+      <p>
+        <small>
+          Follow my followers:
+          <a
+            href="#"
+            onclick="document.getElementById('npub').value = 'npub19p3l898yf76s73m5pr0ru03a0y8ps6c3se6xcekz8d8v2f676kxs5vwdmw'; return false"
+            >npub19p3l898yf76s73m5pr0ru03a0y8ps6c3se6xcekz8d8v2f676kxs5vwdmw</a
+          >
+          -
+          <a href="https://github.com/profullstack/follows-web" target="_blank"
+            >github</a
+          >
+          -
+          <a
+            href="https://pay.globalthreat.info/apps/4Ymzu5U5d7zr7xyX3WvokevrQXkc/crowdfund"
+            target="_blank"
+            >crowd fund</a
+          >
+        </small>
+      </p>
+    </footer>
 
-  gtag('config', 'G-5G2HVL9W1C');
-</script>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-5G2HVL9W1C"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-</body>
-
+      gtag("config", "G-5G2HVL9W1C");
+    </script>
+  </body>
 </html>
