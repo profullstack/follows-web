@@ -11,3 +11,4 @@
 - [X] Fetch user's relays to use for syncing.
   - [ ] Add user's list of relays to our default list.
 - [X] Add `<p class="ok">{successMessage}</p>` instead of `alert()`.
+- [ ] Make sure failure to connect to a relay doesn't break the workflow. 
