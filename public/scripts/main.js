@@ -74,27 +74,38 @@ async function connectRelays() {
     print('Connecting to relays...');
     let promises = [cacheRelay.connect()];
     const relayList = await getRelays();
+    let noRelayAvailable = true;
     for ( let r in relayList ) {
         // initialize relay connection
         const url = relayList[r];
         window.relays[r] = nt.relayInit(url);
         relays[r].on('connect', () => {
-            print(`Connected to relay ${url}`)
+            print(`Connected to relay ${url}`);
+            noRelayAvailable = false;
         });
         relays[r].on('error', () => {
             print(
-                `Couldn't connect to relay ${url}.\n` +
-                `Please try reloading the page.`, 'Red'
+                `Could not connect to relay ${url}.`,
+                'DarkOrange'
             );
-            throw new TypeError(`Failed to connect to ${url}`);
         });
         // connect promise
         promises.push(relays[r].connect());
     }
     // concurrency
     await Promise.allSettled(promises);
+    // stop if we got no relay
+    if (noRelayAvailable) {
+        print(
+            `Could not connect to any regular relay.\n` +
+            `Please try reloading the page.`,
+            'Red'
+        );
+        throw new TypeError(`Failed to connect to relay(s).`);
+    }
     // reactivity
     enableButton();
+    print('Ready.');
 }
 
 function getTargetFollowers(targetUserPubkey, success) {

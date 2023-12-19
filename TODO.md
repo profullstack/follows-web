@@ -9,6 +9,6 @@
 - [ ] Mass follow by tag.
   - [ ] Enter a tag like `#nostr` and follow everyone who is associated with that tag.
 - [X] Fetch user's relays to use for syncing.
-  - [ ] Add user's list of relays to our default list.
+  - [x] Add user's list of relays to our default list.
+  - [x] Make sure failure to connect to a relay doesn't break the workflow. 
 - [X] Add `<p class="ok">{successMessage}</p>` instead of `alert()`.
-- [ ] Make sure failure to connect to a relay doesn't break the workflow. 
