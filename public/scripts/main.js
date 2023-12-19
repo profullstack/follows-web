@@ -88,6 +88,8 @@ async function connectRelays() {
                 `Could not connect to relay ${url}.`,
                 'DarkOrange'
             );
+            // remove from global list
+            relays.splice(r, 1);
         });
         // connect promise
         promises.push(relays[r].connect());
