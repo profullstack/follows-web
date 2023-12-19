@@ -109,7 +109,7 @@ async function connectRelays() {
 }
 
 function getTargetFollowers(targetUserPubkey, success) {
-    print('Getting target followers...');
+    print(`Getting target user's followers...`);
     const filter = {
         "cache": [
             "user_followers",
@@ -125,7 +125,7 @@ function getTargetFollowers(targetUserPubkey, success) {
     });
     sub.on('eose', () => {
         sub.unsub()
-        print('Target followers: ' + followers.length);
+        print(`Target user's followers: ` + followers.length);
         success(followers);
     });
 }
