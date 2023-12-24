@@ -204,7 +204,7 @@ function getRelayListEventPromise(userPubkey, label) {
     });
 }
 
-
+// merge lists of tags
 function mergeLists(list1, list2) {
     const listSum = list1.concat(list2);
     let listSumPksOnly = [];
@@ -350,6 +350,7 @@ async function onSubmit(e) {
 
         // sign the new event
         const signedEvent = await signEvent(userPrivateKey, newEvent);
+
         // propagate
         const propagationResult = await propagate(signedEvent);
         if (propagationResult) {
