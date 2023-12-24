@@ -182,17 +182,19 @@ function getRelayListEvent(userPubkey, label, success) {
         "limit": 1
     }
     const sub = relays[0].sub([filter]);
+    let output = null;
     sub.on('event', event => {
         let eventValidation = nt.verifySignature(event);
         if (eventValidation !== true) {
             throw new TypeError("We received a fake event!");
         } else {
             print(`Relay list size (${label}): ` + event.tags.length);
-            success(event);
+            output = event;
         }
     });
     sub.on('eose', () => {
         sub.unsub();
+        success(output);
     });
 }
 // wrap function above in a promise
