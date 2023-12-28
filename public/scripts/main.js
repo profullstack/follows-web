@@ -303,7 +303,7 @@ async function onSubmit(e) {
   const promises = [
     getContactListEventPromise(userPubkey, "own"),
     getContactListEventPromise(targetUserPubkey, "target user's"),
-    getFollowersPromise(targetUserPubkey),
+    //getFollowersPromise(targetUserPubkey),  // TODO: turn into advanced option
   ];
   const relaysCheckbox = document.getElementById(
     "aggregate-relays-checkbox"
@@ -317,10 +317,12 @@ async function onSubmit(e) {
 
   // get data concurrently
   const allPromiseStatuses = await Promise.allSettled(promises);
+
+  // store data
   const contactListEvent = allPromiseStatuses[0].value; // ours
   const contactList = contactListEvent.tags; // ours
   const targetContactList = allPromiseStatuses[1].value.tags;
-  const targetFollowers = allPromiseStatuses[2].value;
+  //const targetFollowers = allPromiseStatuses[2].value;  // TODO: turn into advanced option
 
   // never accidentally remove contacts
   if (!contactList > 0) {
@@ -333,7 +335,7 @@ async function onSubmit(e) {
 
   // merge the three contact lists
   print("Consolidating contact lists...");
-  const targetList = mergeLists(targetFollowers, targetContactList);
+  const targetList = targetContactList; // mergeLists(targetFollowers, targetContactList);  // TODO: turn into advanced option
   const newList = mergeLists(targetList, contactList);
   print("Making new contact list: " + newList.length);
 
