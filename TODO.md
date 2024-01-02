@@ -3,9 +3,9 @@
 - [x] Mass add relays by npub.
   - [x] Fetch a user's relay list from their npub.
   - [x] Add to current logged in user's relay list.
-- [ ] Mass unfollow.
-  - [ ] Allow a user to unfollow everyone they are following.
-  - [ ] Provide a rollback function that refollows eveyrone in case of mistake.
+- [x] Mass unfollow.
+  - [x] Allow a user to unfollow everyone they are following.
+  - [ ] Provide a rollback function that refollows everyone in case of mistake.
 - [ ] Mass follow by tag.
   - [ ] Enter a tag like `#nostr` and follow everyone who is associated with that tag.
 - [x] Fetch user's relays to use for syncing.
