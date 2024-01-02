@@ -402,7 +402,7 @@ async function onSubmit(e) {
   }
 
   // reactivity
-  document.getElementById("mass-unfollow-checkbox").checked = false; 
+  document.getElementById("mass-unfollow-checkbox").checked = false;
   enableButton();
 }
 document.getElementById("follow-form").addEventListener("submit", onSubmit);
