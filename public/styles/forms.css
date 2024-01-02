@@ -23,6 +23,16 @@ button:disabled {
 	border-color: var(--button-border-color);
 }
 
+form .advanced-options {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+}
+
+form .advanced-options summary {
+    color: gray;
+}
+
 form fieldset {
 	background-color: var(--form-fieldset-background-color);
 	border: 1px solid var(--form-field-border-color);
@@ -74,3 +84,4 @@ form footer {
 	align-items: flex-start;
 	flex-direction: column;
 }
+

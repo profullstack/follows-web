@@ -176,7 +176,7 @@ function getRelayListEvent(userPubkey, label, success) {
     limit: 1,
   };
   const sub = relays[0].sub([filter]);
-  let output = null;
+  let output = {"tags": []};
   sub.on("event", (event) => {
     let eventValidation = nt.verifySignature(event);
     if (eventValidation !== true) {
@@ -301,8 +301,8 @@ async function onSubmit(e) {
 
   // prepare promises for concurrent fetching of data
   const promises = [
-    getContactListEventPromise(userPubkey, "own"),
-    getContactListEventPromise(targetUserPubkey, "target user's"),
+    getContactListEventPromise(userPubkey, "own"),  // #0
+    getContactListEventPromise(targetUserPubkey, "target user's"),  // #1
     //getFollowersPromise(targetUserPubkey),  // TODO: turn into advanced option
   ];
   const relaysCheckbox = document.getElementById(
@@ -310,8 +310,8 @@ async function onSubmit(e) {
   ).checked;
   if (relaysCheckbox) {
     promises.push(
-      getRelayListEventPromise(userPubkey, "own"),
-      getRelayListEventPromise(targetUserPubkey, "target user's")
+      getRelayListEventPromise(userPubkey, "own"),  // #2
+      getRelayListEventPromise(targetUserPubkey, "target user's")  // #3
     );
   }
 
@@ -320,7 +320,7 @@ async function onSubmit(e) {
 
   // store data
   const contactListEvent = allPromiseStatuses[0].value; // ours
-  const contactList = contactListEvent.tags; // ours
+  const contactList = document.getElementById("mass-unfollow-checkbox").checked ? [] : contactListEvent.tags; // ours
   const targetContactList = allPromiseStatuses[1].value.tags;
   //const targetFollowers = allPromiseStatuses[2].value;  // TODO: turn into advanced option
 
@@ -337,12 +337,11 @@ async function onSubmit(e) {
   print("Consolidating contact lists...");
   const targetList = targetContactList; // mergeLists(targetFollowers, targetContactList);  // TODO: turn into advanced option
   const newList = mergeLists(targetList, contactList);
-  print("Making new contact list: " + newList.length);
+  print("New contact list total: " + newList.length);
 
   // calculate how many new contacts
   const diff = newList.length - contactList.length;
-  if (diff > 0) {
-    // never accidentally remove contacts
+  if (diff > 0) { // never accidentally remove contacts
     print(`Adding ${diff} new contacts...`, "DarkOrange");
 
     // work on new contact list event
@@ -368,14 +367,13 @@ async function onSubmit(e) {
 
   // user asked us to work on relays too
   if (relaysCheckbox) {
-    const relayListEvent = allPromiseStatuses[3].value; // ours
+    const relayListEvent = allPromiseStatuses[2].value; // ours
     const relayList = relayListEvent.tags; // ours
-    const targetRelayList = allPromiseStatuses[4].value.tags;
+    const targetRelayList = allPromiseStatuses[3].value.tags;
 
     // merge both relay lists
-    print("Consolidating relay lists...");
     const newRelayList = mergeLists(targetRelayList, relayList);
-    print("Making new relay list: " + newRelayList.length);
+    print("Consolidated relay list: " + newRelayList.length);
 
     // work on new relay list event
     let newEvent = relayListEvent;
@@ -399,11 +397,12 @@ async function onSubmit(e) {
         print(`Sorry, we couldn't update your relay list.`, "DarkRed");
       }
     } else {
-      print("Sorry, we couldn't find any new relays.");
+      print("No new relays found.");
     }
   }
 
   // reactivity
+  document.getElementById("mass-unfollow-checkbox").checked = false; 
   enableButton();
 }
 document.getElementById("follow-form").addEventListener("submit", onSubmit);

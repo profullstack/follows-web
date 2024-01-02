@@ -26,7 +26,7 @@
 <body>
   <main>
     <section>
-      <form id="follow-form">
+      <form id="follow-form" autocomplete="off">
         <h1>
           <img id="logo" src="./logo.png" alt="" /> The Nostr follower tool
         </h1>
@@ -38,22 +38,30 @@
           <input id="npub" style="width: 50vw" type="text" placeholder="npub..." />
           <button id="follow-button" disabled="disabled">follow</button>
         </div>
-        <div class="checkbox" style="float: right">
-          <label for="aggregate-relays-checkbox">Aggregate relays too</label>
-          <input id="aggregate-relays-checkbox" type="checkbox" name="aggregate-relays" />
-        </div>
+        <details class="advanced-options"><summary><b>Advanced options</b></summary>
+          <div class="checkbox">
+            <label for="aggregate-relays-checkbox">Aggregate relays too</label>
+            <input id="aggregate-relays-checkbox" type="checkbox" name="aggregate-relays" />
+          </div>
+          <div class="checkbox">
+            <label for="mass-unfollow-checkbox">Unfollow everyone before starting (start from scratch)</label>
+            <input id="mass-unfollow-checkbox" type="checkbox" name="mass-unfollow" />
+          </div>
+        </details>
       </form>
     </section>
-    <div>
-      <pre id="html-log"><br></pre>
-    </div>
+      <div>
+        <p style="color: gray; text-align: center;"><b>Log:</b></p>
+        <pre id="html-log"></pre>
+      </div>
+
     <!-- <zap-webring></zap-webring> -->
   </main>
 
   <footer>
     <p>
       <small>
-        Follow my followers:
+        Follow the people I follow:
         <a href="#"
           onclick="document.getElementById('npub').value = 'npub19p3l898yf76s73m5pr0ru03a0y8ps6c3se6xcekz8d8v2f676kxs5vwdmw'; return false">npub19p3l898yf76s73m5pr0ru03a0y8ps6c3se6xcekz8d8v2f676kxs5vwdmw</a>
         -
