@@ -177,6 +177,7 @@ function getRelayListEvent(userPubkey, label, success) {
   };
   const sub = relays[0].sub([filter]);
   let output = {"tags": []};
+  output = null;
   sub.on("event", (event) => {
     let eventValidation = nt.verifySignature(event);
     if (eventValidation !== true) {
@@ -319,7 +320,8 @@ async function onSubmit(e) {
   const allPromiseStatuses = await Promise.allSettled(promises);
 
   // store data
-  const contactListEvent = allPromiseStatuses[0].value; // ours
+  const contactListEventTemplate = {"kind": 3, "content": "", "tags": [], "pubkey": userPubkey};  // default
+  const contactListEvent = allPromiseStatuses[0].value ? allPromiseStatuses[0].value : contactListEventTemplate; // ours
   const contactList = document.getElementById("mass-unfollow-checkbox").checked ? [] : contactListEvent.tags; // ours
   const targetContactList = allPromiseStatuses[1].value.tags;
   //const targetFollowers = allPromiseStatuses[2].value;  // TODO: turn into advanced option
@@ -367,9 +369,14 @@ async function onSubmit(e) {
 
   // user asked us to work on relays too
   if (relaysCheckbox) {
-    const relayListEvent = allPromiseStatuses[2].value; // ours
+    const relayListEventTemplate = {
+            "kind": 10002,
+            "content": "",
+            "tags": [],
+            "pubkey": userPubkey};  // default
+    const relayListEvent = allPromiseStatuses[2].value ? allPromiseStatuses[2].value : relayListEventTemplate; // ours
     const relayList = relayListEvent.tags; // ours
-    const targetRelayList = allPromiseStatuses[3].value.tags;
+    const targetRelayList = allPromiseStatuses[3].value ? allPromiseStatuses[3].value.tags : [["r", "wss://relay.follows.lol"]];
 
     // merge both relay lists
     const newRelayList = mergeLists(targetRelayList, relayList);
@@ -379,6 +386,8 @@ async function onSubmit(e) {
     let newEvent = relayListEvent;
     newEvent.created_at = Math.floor(Date.now() / 1000);
     newEvent.tags = newRelayList;
+    console.log(newEvent) ; // DEBUG
+    console.log(nt.validateEvent(newEvent)); // DEBUG
     newEvent.id = nt.getEventHash(newEvent);
 
     // calculate how many new relays
