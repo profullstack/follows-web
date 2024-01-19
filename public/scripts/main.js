@@ -386,8 +386,6 @@ async function onSubmit(e) {
     let newEvent = relayListEvent;
     newEvent.created_at = Math.floor(Date.now() / 1000);
     newEvent.tags = newRelayList;
-    console.log(newEvent) ; // DEBUG
-    console.log(nt.validateEvent(newEvent)); // DEBUG
     newEvent.id = nt.getEventHash(newEvent);
 
     // calculate how many new relays
