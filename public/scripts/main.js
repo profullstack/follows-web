@@ -428,13 +428,10 @@ async function onUndo () {
   newEvent.created_at = Math.floor(Date.now() / 1000);
   newEvent.id = nt.getEventHash(newEvent);
 
-  // prepare to get user's data
+  // prepare to sign
   const wn = window.nostr;
   const userNsec = wn ? null : document.getElementById("nsec").value;
   const userPrivateKey = wn ? null : nt.nip19.decode(userNsec).data;
-  const userPubkey = wn
-    ? await wn.getPublicKey()
-    : nt.getPublicKey(userPrivateKey);
 
   // sign the new event
   const signedEvent = await signEvent(userPrivateKey, newEvent);
