@@ -355,11 +355,16 @@ async function onSubmit(e) {
     // sign the new event
     const signedEvent = await signEvent(userPrivateKey, newEvent);
 
+    // store previous contact list, just in case we want to restore it
+    window.localStorage.setItem("previousContactListEvent", JSON.stringify(contactListEvent));
+
     // propagate
     const propagationResult = await propagate(signedEvent);
     if (propagationResult) {
       print(`Event published, contact list updated.`);
       print(`<b>Success! Now you follow ${diff} new people.</b>`, "Green");
+      // reactivity
+      document.getElementById("undo").classList.remove("hidden");
     } else {
       print(`Sorry, we couldn't update your contact list.`, "DarkRed");
     }
@@ -412,4 +417,40 @@ async function onSubmit(e) {
   document.getElementById("mass-unfollow-checkbox").checked = false;
   enableButton();
 }
+
+async function onUndo () {
+  print(`Restoring previous contact list...`);
+  const previousContactListEvent = JSON.parse(window.localStorage.getItem("previousContactListEvent"));
+  console.log(previousContactListEvent);
+
+  // work on new contact list event
+  let newEvent = previousContactListEvent;
+  newEvent.created_at = Math.floor(Date.now() / 1000);
+  newEvent.id = nt.getEventHash(newEvent);
+
+  // prepare to get user's data
+  const wn = window.nostr;
+  const userNsec = wn ? null : document.getElementById("nsec").value;
+  const userPrivateKey = wn ? null : nt.nip19.decode(userNsec).data;
+  const userPubkey = wn
+    ? await wn.getPublicKey()
+    : nt.getPublicKey(userPrivateKey);
+
+  // sign the new event
+  const signedEvent = await signEvent(userPrivateKey, newEvent);
+
+  // propagate
+  const propagationResult = await propagate(signedEvent);
+  if (propagationResult) {
+    print(`Event published, contact list restored.`, "Green");
+    // reactivity
+    document.getElementById("undo").classList.add("hidden");
+  } else {
+    print(`Sorry, we couldn't update your contact list.`, "DarkRed");
+  }
+
+}
+
+// handle events
 document.getElementById("follow-form").addEventListener("submit", onSubmit);
+document.getElementById("undo").addEventListener("click", onUndo);
