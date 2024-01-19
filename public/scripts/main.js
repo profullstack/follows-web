@@ -177,6 +177,7 @@ function getRelayListEvent(userPubkey, label, success) {
   };
   const sub = relays[0].sub([filter]);
   let output = {"tags": []};
+  output = null;
   sub.on("event", (event) => {
     let eventValidation = nt.verifySignature(event);
     if (eventValidation !== true) {
@@ -258,7 +259,7 @@ document.onreadystatechange = () => {
   if (document.readyState === "complete") {
     console.info("Loading complete.");
     // go go go
-    checkExtensionPresence();
+    setTimeout(checkExtensionPresence, 3000);
     connectRelays();
   }
 };
@@ -319,7 +320,8 @@ async function onSubmit(e) {
   const allPromiseStatuses = await Promise.allSettled(promises);
 
   // store data
-  const contactListEvent = allPromiseStatuses[0].value; // ours
+  const contactListEventTemplate = {"kind": 3, "content": "", "tags": [], "pubkey": userPubkey};  // default
+  const contactListEvent = allPromiseStatuses[0].value ? allPromiseStatuses[0].value : contactListEventTemplate; // ours
   const contactList = document.getElementById("mass-unfollow-checkbox").checked ? [] : contactListEvent.tags; // ours
   const targetContactList = allPromiseStatuses[1].value.tags;
   //const targetFollowers = allPromiseStatuses[2].value;  // TODO: turn into advanced option
@@ -353,11 +355,16 @@ async function onSubmit(e) {
     // sign the new event
     const signedEvent = await signEvent(userPrivateKey, newEvent);
 
+    // store previous contact list, just in case we want to restore it
+    window.localStorage.setItem("previousContactListEvent", JSON.stringify(contactListEvent));
+
     // propagate
     const propagationResult = await propagate(signedEvent);
     if (propagationResult) {
       print(`Event published, contact list updated.`);
       print(`<b>Success! Now you follow ${diff} new people.</b>`, "Green");
+      // reactivity
+      document.getElementById("undo").classList.remove("hidden");
     } else {
       print(`Sorry, we couldn't update your contact list.`, "DarkRed");
     }
@@ -367,9 +374,14 @@ async function onSubmit(e) {
 
   // user asked us to work on relays too
   if (relaysCheckbox) {
-    const relayListEvent = allPromiseStatuses[2].value; // ours
+    const relayListEventTemplate = {
+            "kind": 10002,
+            "content": "",
+            "tags": [],
+            "pubkey": userPubkey};  // default
+    const relayListEvent = allPromiseStatuses[2].value ? allPromiseStatuses[2].value : relayListEventTemplate; // ours
     const relayList = relayListEvent.tags; // ours
-    const targetRelayList = allPromiseStatuses[3].value.tags;
+    const targetRelayList = allPromiseStatuses[3].value ? allPromiseStatuses[3].value.tags : [["r", "wss://relay.follows.lol"]];
 
     // merge both relay lists
     const newRelayList = mergeLists(targetRelayList, relayList);
@@ -405,4 +417,37 @@ async function onSubmit(e) {
   document.getElementById("mass-unfollow-checkbox").checked = false;
   enableButton();
 }
+
+async function onUndo () {
+  print(`Restoring previous contact list...`);
+  const previousContactListEvent = JSON.parse(window.localStorage.getItem("previousContactListEvent"));
+  console.log(previousContactListEvent);
+
+  // work on new contact list event
+  let newEvent = previousContactListEvent;
+  newEvent.created_at = Math.floor(Date.now() / 1000);
+  newEvent.id = nt.getEventHash(newEvent);
+
+  // prepare to sign
+  const wn = window.nostr;
+  const userNsec = wn ? null : document.getElementById("nsec").value;
+  const userPrivateKey = wn ? null : nt.nip19.decode(userNsec).data;
+
+  // sign the new event
+  const signedEvent = await signEvent(userPrivateKey, newEvent);
+
+  // propagate
+  const propagationResult = await propagate(signedEvent);
+  if (propagationResult) {
+    print(`Event published, contact list restored.`, "Green");
+    // reactivity
+    document.getElementById("undo").classList.add("hidden");
+  } else {
+    print(`Sorry, we couldn't update your contact list.`, "DarkRed");
+  }
+
+}
+
+// handle events
 document.getElementById("follow-form").addEventListener("submit", onSubmit);
+document.getElementById("undo").addEventListener("click", onUndo);
