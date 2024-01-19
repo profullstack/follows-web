@@ -258,7 +258,7 @@ document.onreadystatechange = () => {
   if (document.readyState === "complete") {
     console.info("Loading complete.");
     // go go go
-    checkExtensionPresence();
+    setTimeout(checkExtensionPresence, 3000);
     connectRelays();
   }
 };
