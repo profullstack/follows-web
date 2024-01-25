@@ -356,7 +356,7 @@ async function onSubmit(e) {
   const relaysCheckbox = document.getElementById(
     "aggregate-relays-checkbox"
   ).checked;
-  if (relaysCheckbox) {
+  if (relaysCheckbox && !isHT) {
     promises.push(
       getRelayListEventPromise(userPubkey, "own"),  // #2
       getRelayListEventPromise(targetUserPubkey, "target user's")  // #3
