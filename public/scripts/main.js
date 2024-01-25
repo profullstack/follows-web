@@ -142,7 +142,7 @@ function getContactListEvent(userPubkey, label, success) {
     limit: 1,
   };
   const sub = relays[0].sub([filter]);
-  let output = null;
+  let output = { "tags": [] };
   sub.on("event", (event) => {
     let eventValidation = nt.verifySignature(event);
     if (eventValidation !== true) {
