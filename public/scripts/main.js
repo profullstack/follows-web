@@ -142,7 +142,7 @@ function getContactListEvent(userPubkey, label, success) {
     limit: 1,
   };
   const sub = relays[0].sub([filter]);
-  let output = null;
+  let output = { "tags": [] };
   sub.on("event", (event) => {
     let eventValidation = nt.verifySignature(event);
     if (eventValidation !== true) {
@@ -201,6 +201,47 @@ function getRelayListEventPromise(userPubkey, label) {
   });
 }
 
+function getHashtagPubkeys(hashtag, success) {
+  print(`Getting pubkeys linked to tag ${hashtag}...`);
+  const filter = {
+    '#t': [hashtag],
+    kinds: [1],
+    limit: 50,
+  };
+  const sub = relays[0].sub([filter]);
+  let result = [];
+  sub.on("event", (event) => {
+    const eventValidation = nt.verifySignature(event);
+    if (eventValidation === true) {
+      for ( let t in event.tags ) {
+        const tag = event.tags[t] ;
+        if ( tag[0] === "p" ) {
+          const pubkey = tag[1];
+          result.push(pubkey);
+        }
+      }
+      result.push(event.pubkey);
+    }
+  });
+  sub.on("eose", () => {
+    sub.unsub();
+    let output = [];
+    const uniqPksOnly = [...new Set(result)]; // uniq values
+    uniqPksOnly.forEach((i) => {
+      output.push(["p", i]); // use event format
+    });
+    success({"tags": output}); // use event format
+  });
+}
+// wrap function above in a promise
+function getHashtagPubkeysPromise(hashtag) {
+  return new Promise((result) => {
+    getHashtagPubkeys(hashtag, (success) => {
+      result(success);
+    });
+  });
+}
+
 // merge lists of tags
 function mergeLists(list1, list2) {
   const listSum = list1.concat(list2);
@@ -210,13 +251,13 @@ function mergeLists(list1, list2) {
     listSumPksOnly.push(i[0] + "_" + i[1]);
   });
   let uniqPksOnly = [...new Set(listSumPksOnly)]; // uniq values
-  let result = [];
+  let output = [];
   uniqPksOnly.forEach((i) => {
     let tag = i.substring(0, 1);
     let value = i.substring(2);
-    result.push([tag, value]); // restore original format
+    output.push([tag, value]); // restore original format
   });
-  return result;
+  return output;
 }
 
 // sign according to either extension or manual private key mode
@@ -289,8 +330,11 @@ async function onSubmit(e) {
   disableButton();
 
   // prepare to get target data
-  const targetUserNpub = document.getElementById("npub").value.trim();
-  const targetUserPubkey = nt.nip19.decode(targetUserNpub).data;
+  const input = document.getElementById("npub").value.trim();
+  const isHT = input.startsWith('#');
+  const ht = isHT ? input.substring(1) : null;
+  const targetUserNpub = isHT ? null : input;
+  const targetUserPubkey = isHT ? null : nt.nip19.decode(targetUserNpub).data;
 
   // prepare to get user's data
   const wn = window.nostr;
@@ -302,14 +346,17 @@ async function onSubmit(e) {
 
   // prepare promises for concurrent fetching of data
   const promises = [
-    getContactListEventPromise(userPubkey, "own"),  // #0
-    getContactListEventPromise(targetUserPubkey, "target user's"),  // #1
-    //getFollowersPromise(targetUserPubkey),  // TODO: turn into advanced option
+    getContactListEventPromise(userPubkey, "own")  // #0
   ];
+  if (isHT) {
+    promises.push(getHashtagPubkeysPromise(ht)); // #1
+  } else {
+    promises.push(getContactListEventPromise(targetUserPubkey, "target user's"));  // #1
+  }
   const relaysCheckbox = document.getElementById(
     "aggregate-relays-checkbox"
   ).checked;
-  if (relaysCheckbox) {
+  if (relaysCheckbox && !isHT) {
     promises.push(
       getRelayListEventPromise(userPubkey, "own"),  // #2
       getRelayListEventPromise(targetUserPubkey, "target user's")  // #3
@@ -323,21 +370,10 @@ async function onSubmit(e) {
   const contactListEventTemplate = {"kind": 3, "content": "", "tags": [], "pubkey": userPubkey};  // default
   const contactListEvent = allPromiseStatuses[0].value ? allPromiseStatuses[0].value : contactListEventTemplate; // ours
   const contactList = document.getElementById("mass-unfollow-checkbox").checked ? [] : contactListEvent.tags; // ours
-  const targetContactList = allPromiseStatuses[1].value.tags;
-  //const targetFollowers = allPromiseStatuses[2].value;  // TODO: turn into advanced option
-
-  // never accidentally remove contacts
-  if (!contactList > 0) {
-    print(
-      `Could not read contact list for pubkey "${userPubkey}".\n` +
-        `Please try again refreshing the page.`
-    );
-    throw new TypeError(`Could not read current contact list.`);
-  }
+  const targetList = allPromiseStatuses[1].value.tags;
 
   // merge the three contact lists
-  print("Consolidating contact lists...");
-  const targetList = targetContactList; // mergeLists(targetFollowers, targetContactList);  // TODO: turn into advanced option
+  print("Consolidating new contact list...");
   const newList = mergeLists(targetList, contactList);
   print("New contact list total: " + newList.length);
 
@@ -373,7 +409,7 @@ async function onSubmit(e) {
   }
 
   // user asked us to work on relays too
-  if (relaysCheckbox) {
+  if (relaysCheckbox && !isHT) {
     const relayListEventTemplate = {
             "kind": 10002,
             "content": "",
