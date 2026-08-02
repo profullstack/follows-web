@@ -34,6 +34,20 @@ function print(msg, color) {
   htmlLog.scrollTop = htmlLog.scrollHeight;
 }
 
+// decode a bech32/nip19 string safely; returns null on empty or invalid input
+function safeDecodeNip(value) {
+  if (!value || typeof value !== "string") {
+    return null;
+  }
+  try {
+    const res = nt.nip19.decode(value.trim());
+    return res.data;
+  } catch (e) {
+    print(`Invalid input: "${value.trim()}" is not a valid npub/nsec.`);
+    return null;
+  }
+}
+
 // read user's relay list if present
 async function getRelays() {
   let relayList = defaultRelayList;
@@ -265,7 +279,7 @@ async function signEvent(userPrivateKey, event) {
   try {
     if (!window.nostr) {
       // nsec mode
-      newEvent.sig = nt.getSignature(event, userPrivateKey);
+      event.sig = nt.getSignature(event, userPrivateKey);
       return event;
     } else {
       // extension mode
@@ -334,12 +348,12 @@ async function onSubmit(e) {
   const isHT = input.startsWith('#');
   const ht = isHT ? input.substring(1) : null;
   const targetUserNpub = isHT ? null : input;
-  const targetUserPubkey = isHT ? null : nt.nip19.decode(targetUserNpub).data;
+  const targetUserPubkey = isHT ? null : safeDecodeNip(targetUserNpub);
 
   // prepare to get user's data
   const wn = window.nostr;
   const userNsec = wn ? null : document.getElementById("nsec").value;
-  const userPrivateKey = wn ? null : nt.nip19.decode(userNsec).data;
+  const userPrivateKey = wn ? null : safeDecodeNip(userNsec);
   const userPubkey = wn
     ? await wn.getPublicKey()
     : nt.getPublicKey(userPrivateKey);
@@ -456,7 +470,12 @@ async function onSubmit(e) {
 
 async function onUndo () {
   print(`Restoring previous contact list...`);
-  const previousContactListEvent = JSON.parse(window.localStorage.getItem("previousContactListEvent"));
+  const stored = window.localStorage.getItem("previousContactListEvent");
+  if (!stored) {
+    print(`Nothing to undo.`, "DarkRed");
+    return;
+  }
+  const previousContactListEvent = JSON.parse(stored);
   console.log(previousContactListEvent);
 
   // work on new contact list event
@@ -467,7 +486,7 @@ async function onUndo () {
   // prepare to sign
   const wn = window.nostr;
   const userNsec = wn ? null : document.getElementById("nsec").value;
-  const userPrivateKey = wn ? null : nt.nip19.decode(userNsec).data;
+  const userPrivateKey = wn ? null : safeDecodeNip(userNsec);
 
   // sign the new event
   const signedEvent = await signEvent(userPrivateKey, newEvent);
